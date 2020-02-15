@@ -473,7 +473,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: (_activitiesList.length < 8) ? FloatingActionButton(
         child: Icon(
           Icons.add,
           color: Colors.white,
@@ -481,7 +481,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         onPressed: () => _startAddNewActivity(context),
         backgroundColor: Theme.of(context).buttonColor,
         elevation: 5,
-      ),
+      ) : null,
     );
   }
 }
