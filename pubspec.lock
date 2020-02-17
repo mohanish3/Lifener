@@ -101,7 +101,7 @@ packages:
       name: image
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.7"
+    version: "2.1.12"
   intl:
     dependency: "direct main"
     description:
@@ -164,7 +164,7 @@ packages:
       name: shared_preferences_macos
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.1+4"
+    version: "0.0.1+5"
   shared_preferences_platform_interface:
     dependency: transitive
     description:

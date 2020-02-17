@@ -97,8 +97,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   //Initializes local storage and checks for first time initialization
   void getSharedPrefs() async {
     this.prefs = await SharedPreferences.getInstance();
-    String currentJson = prefs.getString("_current");
-    _weekStartDate = prefs.getString("_weekStartDate");
+    String currentJson = prefs.getString("current");
+    _weekStartDate = prefs.getString("weekStartDate");
 
     if (currentJson == null) {
       var freeActivity = Activity(
@@ -125,10 +125,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           firstMonday.year, firstMonday.month, firstMonday.day, 0, 0, 0, 0, 0);
       _weekStartDate = firstMonday.toIso8601String();
 
-      prefs.setString("_current", jsonEncode(_current));
-      prefs.setStringList("activities", _activitiesList);
-      prefs.setStringList("reportList", _reportList);
-      prefs.setString("_weekStartDate", _weekStartDate);
+      activityListPreferences();
     } else {
       setState(() {
         _activitiesList = prefs.getStringList("activities");
@@ -139,6 +136,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     setState(() {
       getCurrentInfo();
     });
+    print(_currentInfoString);
     updateTimeLeft(DateTime.now());
   }
 
@@ -149,9 +147,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   //Stores data in local storage
   void activityListPreferences() async {
-    prefs.setString("_current", jsonEncode(_current));
+    prefs.setString("current", jsonEncode(_current));
     prefs.setStringList("activities", _activitiesList);
     prefs.setStringList("reportList", _reportList);
+    prefs.setString("weekStartDate", _weekStartDate);
   }
 
   //gets info about the current activity in currentInfoString
@@ -341,8 +340,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       _activitiesList[i] = jsonEncode(act);
     }
 
+    _weekStartDate = start.add(Duration(days:7)).toIso8601String();
     int timeElapsed =
-        DateTime.now().difference(start.add(Duration(days: 7))).inMinutes;
+        DateTime.now().difference(DateTime.parse(_weekStartDate)).inMinutes;
     Map<String, dynamic> newTime = TimeFunctions.subtractTime(
         _currentInfoString['timeAllocatedHours'],
         _currentInfoString['timeAllocatedMinutes'],
@@ -357,12 +357,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void updateTimeLeft(DateTime currentTime) {
     Duration weeklyDuration =
         currentTime.difference(DateTime.parse(_weekStartDate));
-    while (weeklyDuration.inDays >= 7) {
+    if (weeklyDuration.inDays >= 7) {
       prepareReportAndReset(DateTime.parse(_weekStartDate));
-      _current['startTime'] = DateTime.parse(_weekStartDate)
-          .add(Duration(days: 7))
-          .toIso8601String();
-      _current['updateTime'] = _current['startTime'];
+      _current['startTime'] = _weekStartDate;
+      _current['updateTime'] = currentTime.toIso8601String();
+      return;
     }
 
     DateTime previousTime = DateTime.parse(_current['updateTime']);
