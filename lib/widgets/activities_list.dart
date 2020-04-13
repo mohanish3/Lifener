@@ -1,14 +1,17 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:lifener/widgets/edit_dialog.dart';
 
 //Gets the ListView for each activity running
 class ActivitiesList extends StatelessWidget {
   final List<String> activitiesList;
   final Function deleteItem;
   final Function setCurrent;
+  final Function updateItem;
 
-  ActivitiesList({this.activitiesList, this.deleteItem, this.setCurrent});
+  ActivitiesList(
+      {this.activitiesList, this.deleteItem, this.setCurrent, this.updateItem});
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +53,19 @@ class ActivitiesList extends StatelessWidget {
                     child: Card(
                       elevation: 3,
                       child: ListTile(
+                        onTap: () {
+                          if (index != activitiesList.length - 1)
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return EditDialog(
+                                      updateItem: updateItem,
+                                      index: index,
+                                      item: actJson,
+                                      freeTime: jsonDecode(activitiesList[
+                                          activitiesList.length - 1]));
+                                });
+                        },
                         title: Text(
                           actJson['title'],
                           style: TextStyle(
@@ -70,7 +86,14 @@ class ActivitiesList extends StatelessWidget {
                                       color: Theme.of(context).errorColor,
                                       borderRadius: BorderRadius.circular(20)),
                                 )
-                              : Stack(
+                              : (actJson['timeLeftHours'] > actJson['timeAllocatedHours'] ||
+                              (actJson['timeLeftHours'] == actJson['timeAllocatedHours'] && actJson['timeLeftMinutes'] > actJson['timeAllocatedMinutes'])) ? Container(
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                    color: Colors.grey, width: 0.5),
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(20)),
+                          ) : Stack(
                                   children: <Widget>[
                                     Container(
                                       decoration: BoxDecoration(

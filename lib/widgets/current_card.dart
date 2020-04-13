@@ -53,7 +53,7 @@ class CurrentCard extends StatelessWidget {
                   height: 15,
                   child: (currentInfoString['timeLeftMinutes'] < 0 ||
                       currentInfoString['timeLeftHours'] < 0)
-                      ? Stack(
+                      ?  Stack(
                     children: <Widget>[
                       Container(
                         decoration: BoxDecoration(
@@ -76,7 +76,30 @@ class CurrentCard extends StatelessWidget {
                       )
                     ],
                   )
-                      : Container(
+                      : (currentInfoString['timeLeftHours'] > currentInfoString['timeAllocatedHours'] ||
+                      (currentInfoString['timeLeftHours'] == currentInfoString['timeAllocatedHours'] && currentInfoString['timeLeftMinutes'] > currentInfoString['timeAllocatedMinutes'])) ? Stack(
+                    children: <Widget>[
+                      Container(
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                                color: Colors.grey, width: 0.5),
+                            color: Colors.red,
+                            borderRadius:
+                            BorderRadius.circular(20)),
+                      ),
+                      Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Excess: ${currentInfoString['timeLeftHours']} hrs ${currentInfoString['timeLeftMinutes']} mins / ${currentInfoString['timeAllocatedHours']} hrs ${currentInfoString['timeAllocatedMinutes']} mins',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      )
+                    ],
+                  ) : Container(
                     height: 5,
                     child: Stack(
                       children: <Widget>[

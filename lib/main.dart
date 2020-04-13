@@ -340,7 +340,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       _activitiesList[i] = jsonEncode(act);
     }
 
-    _weekStartDate = start.add(Duration(days:7)).toIso8601String();
+    _weekStartDate = start.add(Duration(days: 7)).toIso8601String();
     int timeElapsed =
         DateTime.now().difference(DateTime.parse(_weekStartDate)).inMinutes;
     Map<String, dynamic> newTime = TimeFunctions.subtractTime(
@@ -406,6 +406,98 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     activityListPreferences();
   }
 
+  void _updateItem(
+      bool remainingAllocated, bool exceeded, int index, int enteredValue) {
+    dynamic act = jsonDecode(_activitiesList[index]);
+    dynamic freeTime = jsonDecode(_activitiesList[_activitiesList.length - 1]);
+    if (remainingAllocated) {
+      int timeDiff =
+          enteredValue - (act['timeAllocatedHours'] * 60 + act['timeAllocatedMinutes']);
+      if(timeDiff > 0) {
+        dynamic newFreeTime = TimeFunctions.subtractTime(
+            freeTime['timeAllocatedHours'],
+            freeTime['timeAllocatedMinutes'],
+            (timeDiff / 60).floor(),
+            timeDiff % 60);
+        freeTime['timeAllocatedHours'] = newFreeTime['hours'];
+        freeTime['timeAllocatedMinutes'] = newFreeTime['minutes'];
+        act['timeAllocatedHours'] = (enteredValue / 60).floor();
+        act['timeAllocatedMinutes'] = (enteredValue % 60);
+      }
+      else {
+        dynamic newFreeTime = TimeFunctions.addTime(
+            freeTime['timeAllocatedHours'],
+            freeTime['timeAllocatedMinutes'],
+            (-timeDiff / 60).floor(),
+            -timeDiff % 60);
+        freeTime['timeAllocatedHours'] = newFreeTime['hours'];
+        freeTime['timeAllocatedMinutes'] = newFreeTime['minutes'];
+        act['timeAllocatedHours'] = (enteredValue / 60).floor();
+        act['timeAllocatedMinutes'] = (enteredValue % 60);
+      }
+    } else {
+      if (exceeded) {
+        int timeDiff =
+            (act['timeLeftHours'] * 60 + act['timeLeftMinutes']) + enteredValue;
+        if (timeDiff >= 0) {
+          dynamic newFreeTime = TimeFunctions.addTime(
+              freeTime['timeLeftHours'],
+              freeTime['timeLeftMinutes'],
+              (timeDiff / 60).floor(),
+              timeDiff % 60);
+          freeTime['timeLeftHours'] = newFreeTime['hours'];
+          freeTime['timeLeftMinutes'] = newFreeTime['minutes'];
+          act['timeLeftHours'] = -(enteredValue / 60).floor();
+          act['timeLeftMinutes'] = -(enteredValue % 60);
+        }
+        else {
+          dynamic newFreeTime = TimeFunctions.subtractTime(
+              freeTime['timeLeftHours'],
+              freeTime['timeLeftMinutes'],
+              (-timeDiff / 60).floor(),
+              -timeDiff % 60);
+          freeTime['timeLeftHours'] = newFreeTime['hours'];
+          freeTime['timeLeftMinutes'] = newFreeTime['minutes'];
+          act['timeLeftHours'] = -(enteredValue / 60).floor();
+          act['timeLeftMinutes'] = -(enteredValue % 60);
+        }
+      } else {
+        int timeDiff =
+            enteredValue - (act['timeLeftHours'] * 60 + act['timeLeftMinutes']);
+        if (timeDiff > 0) {
+          dynamic newFreeTime = TimeFunctions.subtractTime(
+              freeTime['timeLeftHours'],
+              freeTime['timeLeftMinutes'],
+              (timeDiff / 60).floor(),
+              timeDiff % 60);
+          freeTime['timeLeftHours'] = newFreeTime['hours'];
+          freeTime['timeLeftMinutes'] = newFreeTime['minutes'];
+          act['timeLeftHours'] = (enteredValue / 60).floor();
+          act['timeLeftMinutes'] = (enteredValue % 60);
+        }
+        else {
+          dynamic newFreeTime = TimeFunctions.addTime(
+              freeTime['timeLeftHours'],
+              freeTime['timeLeftMinutes'],
+              (-timeDiff / 60).floor(),
+              -timeDiff % 60);
+          freeTime['timeLeftHours'] = newFreeTime['hours'];
+          freeTime['timeLeftMinutes'] = newFreeTime['minutes'];
+          act['timeLeftHours'] = (enteredValue / 60).floor();
+          act['timeLeftMinutes'] = (enteredValue % 60);
+        }
+      }
+    }
+
+    setState(() {
+    _activitiesList[index] = jsonEncode(act);
+    _activitiesList[_activitiesList.length - 1] = jsonEncode(freeTime);
+    });
+
+    activityListPreferences();
+    getCurrentInfo();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -468,19 +560,22 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               activitiesList: _activitiesList,
               deleteItem: _deleteActivity,
               setCurrent: _setCurrent,
+              updateItem: _updateItem,
             ),
           ],
         ),
       ),
-      floatingActionButton: (_activitiesList.length < 8) ? FloatingActionButton(
-        child: Icon(
-          Icons.add,
-          color: Colors.white,
-        ),
-        onPressed: () => _startAddNewActivity(context),
-        backgroundColor: Theme.of(context).buttonColor,
-        elevation: 5,
-      ) : null,
+      floatingActionButton: (_activitiesList.length < 8)
+          ? FloatingActionButton(
+              child: Icon(
+                Icons.add,
+                color: Colors.white,
+              ),
+              onPressed: () => _startAddNewActivity(context),
+              backgroundColor: Theme.of(context).buttonColor,
+              elevation: 5,
+            )
+          : null,
     );
   }
 }

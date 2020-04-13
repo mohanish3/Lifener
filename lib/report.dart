@@ -27,7 +27,7 @@ class Report extends StatelessWidget {
                                 fontWeight: FontWeight.w400, fontSize: 25),
                           ),
                           Text(
-                            'Please wait another ${Duration(days: (8-DateTime.now().weekday)).inDays} days',
+                            'Please wait another ${Duration(days: (8 - DateTime.now().weekday)).inDays} days',
                             style: TextStyle(
                                 fontWeight: FontWeight.w400, fontSize: 22),
                           ),
@@ -82,51 +82,71 @@ class Report extends StatelessWidget {
                                                 ),
                                                 title: Container(
                                                   height: 5,
-                                                  child: Stack(
-                                                    children: <Widget>[
-                                                      Container(
-                                                        decoration: BoxDecoration(
-                                                            border: Border.all(
-                                                                color:
-                                                                    Colors.grey,
-                                                                width: 0.5),
-                                                            color:
-                                                                Color.fromRGBO(
-                                                                    220,
-                                                                    220,
-                                                                    220,
-                                                                    1),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        20)),
-                                                      ),
-                                                      FractionallySizedBox(
-                                                        widthFactor: (act[
-                                                                        'timeLeftHours'] *
-                                                                    60 +
-                                                                act[
-                                                                    'timeLeftMinutes']) /
-                                                            (act['timeAllocatedHours'] *
-                                                                    60 +
-                                                                act['timeAllocatedMinutes'] +
-                                                                0.0001),
-                                                        child: Container(
+                                                  child: (act['timeLeftMinutes'] <
+                                                              0 ||
+                                                          act['timeLeftHours'] <
+                                                              0)
+                                                      ? Container(
                                                           decoration: BoxDecoration(
-                                                              color: Theme.of(
-                                                                      context)
-                                                                  .buttonColor,
+                                                              border: Border.all(
+                                                                  color: Colors
+                                                                      .grey,
+                                                                  width: 0.5),
+                                                              color: Theme.of(context).errorColor,
                                                               borderRadius:
                                                                   BorderRadius
                                                                       .circular(
                                                                           20)),
+                                                        )
+                                                      : Stack(
+                                                          children: <Widget>[
+                                                            Container(
+                                                              decoration: BoxDecoration(
+                                                                  border: Border.all(
+                                                                      color: Colors
+                                                                          .grey,
+                                                                      width:
+                                                                          0.5),
+                                                                  color: Color
+                                                                      .fromRGBO(
+                                                                          220,
+                                                                          220,
+                                                                          220,
+                                                                          1),
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              20)),
+                                                            ),
+                                                            FractionallySizedBox(
+                                                              widthFactor: (act[
+                                                                              'timeLeftHours'] *
+                                                                          60 +
+                                                                      act[
+                                                                          'timeLeftMinutes']) /
+                                                                  (act['timeAllocatedHours'] *
+                                                                          60 +
+                                                                      act['timeAllocatedMinutes'] +
+                                                                      0.0001),
+                                                              child: Container(
+                                                                decoration: BoxDecoration(
+                                                                    color: Theme.of(
+                                                                            context)
+                                                                        .buttonColor,
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            20)),
+                                                              ),
+                                                            ),
+                                                          ],
                                                         ),
-                                                      ),
-                                                    ],
-                                                  ),
                                                 ),
                                                 subtitle: Center(
-                                                  child: Text(
+                                                  child: (act['timeLeftMinutes'] <
+                                                      0 ||
+                                                      act['timeLeftHours'] <
+                                                          0)? Text(
+                                                      "Exceeded by ${-act['timeLeftHours']} hrs ${-act['timeLeftMinutes']} mins"):Text(
                                                       "${act['timeLeftHours']} hrs ${act['timeLeftMinutes']} mins / ${act['timeAllocatedHours']} hrs ${act['timeAllocatedMinutes']} mins"),
                                                 ));
                                           })
